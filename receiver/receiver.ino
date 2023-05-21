@@ -58,7 +58,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
   memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  Serial.print("Float: ");
+  Serial.print("pressure: ");
   Serial.println(myData.c);
   pressure = myData.c;
   Serial.println();
