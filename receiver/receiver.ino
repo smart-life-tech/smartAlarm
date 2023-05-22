@@ -1,6 +1,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
-int year = 23;
+int year = 2023;
 int month = 03;
 int date = 15;
 int hour = 19;
