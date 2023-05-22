@@ -1,10 +1,10 @@
 #include <esp_now.h>
 #include <WiFi.h>
 int year = 2023;
-int month = 03;
-int date = 15;
-int hour = 19;
-int minute = 53;
+int month = 05;
+int date = 22;
+int hour = 16;
+int minute = 43;
 int second = 00;
 int doW = 2; // day of the week to monday
 
