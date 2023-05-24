@@ -1,6 +1,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
-int year = 2023;
+int year = 23;
 int month = 05;
 int date = 22;
 int hour = 16;
@@ -94,6 +94,7 @@ void setup()
     h = 12;
   if (m == 255)
     m = 30;
+  Clock.setClockMode(false);
   Clock.setYear(year);
   Clock.setMonth(month);
   Clock.setDate(date);
@@ -231,7 +232,7 @@ void loop()
     ringing = true;
     ring = false;
   }
-  if (ringing && (pressure> 500))
+  if (ringing && (pressure> 1000))
   {
     if (Min != mins)
     {
