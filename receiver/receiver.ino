@@ -1,3 +1,4 @@
+int sensitivity = 2500;
 #include <esp_now.h>
 #include <WiFi.h>
 int year = 23;
@@ -19,9 +20,9 @@ RTClib myRTC;
 int Hour;
 int Min;
 
-int pset = 15;   // yellow  pushbutton for setting alarm
+int pset = 15;  // yellow  pushbutton for setting alarm
 int phour = 2;  //  blue pushbutton for hour
-int pmin = 4;  // greem  pushbutton for minutes
+int pmin = 4;   // greem  pushbutton for minutes
 int pexit = 16; // red pushbutton for exit of set alarm
 int buzzer = 17;
 
@@ -232,7 +233,7 @@ void loop()
     ringing = true;
     ring = false;
   }
-  if (ringing && (pressure> 2000))
+  if (ringing && (pressure > sensitivity))
   {
     if (Min != mins)
     {
