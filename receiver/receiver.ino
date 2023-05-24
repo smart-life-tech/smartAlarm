@@ -232,7 +232,7 @@ void loop()
     ringing = true;
     ring = false;
   }
-  if (ringing && (pressure> 1000))
+  if (ringing && (pressure> 2000))
   {
     if (Min != mins)
     {
