@@ -241,11 +241,11 @@ void loop()
     }
     if (minCount >= 15)
     {
-      noTone(6);
+      noTone(17);
     }
     else if (minCount < 15)
     {
-      tone(6, 400, 300);
+      tone(17, 400, 300);
       Serial.println("ringing");
     } // else if (minCount < 15 && (analogRead(A0) < 500)) {
     // noTone(6);
