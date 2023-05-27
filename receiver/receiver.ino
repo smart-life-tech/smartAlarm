@@ -1,6 +1,10 @@
 int sensitivity = 2500;
 #include <esp_now.h>
 #include <WiFi.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
+#include <DS3231.h>
 int year = 23;
 int month = 05;
 int date = 22;
@@ -8,13 +12,14 @@ int hour = 16;
 int minute = 43;
 int second = 00;
 int doW = 2; // day of the week to monday
+// Set the interval for waking up in seconds
+const unsigned long INTERVAL_SECONDS = 60;
 
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <EEPROM.h>
+RTC_DATA_ATTR int bootCount = 0; // Store boot count in RTC memory
+
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-#include <DS3231.h>
+
 DS3231 Clock;
 RTClib myRTC;
 int Hour;
@@ -116,10 +121,39 @@ void setup()
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(OnDataRecv);
+   touchAttachInterrupt(pset, triggerAlarm, 40);
 }
 
 void loop()
 {
+  delay(500);
+
+  // Check if it's time to trigger the alarm based on the interval
+  if (bootCount % (INTERVAL_SECONDS / 5) == 0)
+  {
+
+    triggerAlarm();
+  }
+  else
+  {
+    if (!ringing)
+    {
+      lcd.noBacklight();
+      // Enter deep sleep for the specified interval
+      goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microseconds
+    }
+  }
+}
+
+void goToSleep(unsigned long sleepTime)
+{
+  esp_sleep_enable_timer_wakeup(sleepTime);
+  esp_deep_sleep_start();
+}
+
+void triggerAlarm()
+{
+  // Code to trigger the alarm (e.g., sound a buzzer, send notifications, etc.)
   delay(1000);
 
   DateTime now = myRTC.now();
@@ -224,12 +258,15 @@ void loop()
     {
       activate = 0;
       lcd.clear();
+      // Enter deep sleep for the specified interval
+      goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microsecond
     }
   }
 
   if (Hour == h && Min == m)
   {
     Serial.println("now ringing");
+    lcd.backlight();
     ringing = true;
     ring = false;
   }
@@ -240,9 +277,11 @@ void loop()
       mins = Min;
       minCount++;
     }
-    if (minCount >= 15)
+    if (minCount >= 15 || !digitalRead(pexit))
     {
       noTone(17);
+      minCount = 0;
+      ringing = false;
     }
     else if (minCount < 15)
     {
@@ -252,5 +291,4 @@ void loop()
     // noTone(6);
     // ringing = false; // no ring till next alarm
   }
-  delay(500);
 }
