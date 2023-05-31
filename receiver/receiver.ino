@@ -259,7 +259,7 @@ void triggerAlarm()
       activate = 0;
       lcd.clear();
       // Enter deep sleep for the specified interval
-      goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microsecond
+      //goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microsecond
     }
   }
 
