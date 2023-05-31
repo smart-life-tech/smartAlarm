@@ -121,14 +121,14 @@ void setup()
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(OnDataRecv);
-   touchAttachInterrupt(pset, triggerAlarm, 40);
+  touchAttachInterrupt(pset, triggerAlarm, 40);
 }
 
 void loop()
 {
   delay(500);
-
-  // Check if it's time to trigger the alarm based on the interval
+  triggerAlarm();
+  /* //Check if it's time to trigger the alarm based on the interval
   if (bootCount % (INTERVAL_SECONDS / 5) == 0)
   {
 
@@ -142,7 +142,7 @@ void loop()
       // Enter deep sleep for the specified interval
       goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microseconds
     }
-  }
+  }*/
 }
 
 void goToSleep(unsigned long sleepTime)
