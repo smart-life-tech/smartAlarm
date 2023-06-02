@@ -14,7 +14,7 @@ int second = 00;
 int doW = 2; // day of the week to monday
 // Set the interval for waking up in seconds
 const unsigned long INTERVAL_SECONDS = 60;
-
+String tim;
 RTC_DATA_ATTR int bootCount = 0; // Store boot count in RTC memory
 
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -30,7 +30,7 @@ int phour = 2;  //  blue pushbutton for hour
 int pmin = 4;   // greem  pushbutton for minutes
 int pexit = 16; // red pushbutton for exit of set alarm
 int buzzer = 17;
-
+int powersave = 0;
 int h;
 int m;
 int buttonforset = 0;  // pushbutton state for setting alarm
@@ -100,6 +100,8 @@ void setup()
     h = 12;
   if (m == 255)
     m = 30;
+
+#ifdef setclock
   Clock.setClockMode(false);
   Clock.setYear(year);
   Clock.setMonth(month);
@@ -108,6 +110,7 @@ void setup()
   Clock.setHour(hour);
   Clock.setMinute(minute);
   Clock.setSecond(second);
+#endif
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -121,7 +124,7 @@ void setup()
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(OnDataRecv);
-  touchAttachInterrupt(pset, triggerAlarm, 40);
+  // touchAttachInterrupt(pset, triggerAlarm, 40);
 }
 
 void loop()
@@ -129,20 +132,20 @@ void loop()
   delay(500);
   triggerAlarm();
   /* //Check if it's time to trigger the alarm based on the interval
-  if (bootCount % (INTERVAL_SECONDS / 5) == 0)
-  {
+    if (bootCount % (INTERVAL_SECONDS / 5) == 0)
+    {
 
     triggerAlarm();
-  }
-  else
-  {
+    }
+    else
+    {
     if (!ringing)
     {
       lcd.noBacklight();
       // Enter deep sleep for the specified interval
       goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microseconds
     }
-  }*/
+    }*/
 }
 
 void goToSleep(unsigned long sleepTime)
@@ -154,12 +157,17 @@ void goToSleep(unsigned long sleepTime)
 void triggerAlarm()
 {
   // Code to trigger the alarm (e.g., sound a buzzer, send notifications, etc.)
-  delay(1000);
+  delay(500);
 
   DateTime now = myRTC.now();
   DateTime t = myRTC.now();
   String date = String(now.day()) + "/" + String(now.month()) + "/" + String(now.year());
-  String tim = String(now.hour()) + ":" + String(now.minute());
+  if (now.minute() > 9) {
+    tim = String(now.hour()) + " : " + String(now.minute());
+  }
+  else {
+    tim = String(now.hour()) + " : 0" + String(now.minute());
+  }
   Serial.print(now.year(), DEC);
   Serial.print('/');
   Serial.print(now.month(), DEC);
@@ -204,11 +212,22 @@ void triggerAlarm()
     Hour = t.hour();
     Min = t.minute();
     buttonforset = digitalRead(pset);
-  } // setting button pressed
-  if (buttonforset == LOW)
-  {
-    activate = 1;
-    lcd.clear();
+    if (! digitalRead(phour) || ! digitalRead(pmin) || ! digitalRead(pexit)) {
+      powersave = 0;
+      lcd.backlight();
+    }
+    // setting button pressed
+    if (buttonforset == LOW)
+    {
+      activate = 1;
+      powersave = 0;
+      lcd.clear();
+    }
+    powersave++;
+    if (powersave > 10) {
+      lcd.noBacklight();
+     // goToSleep(100000000);
+    }
   }
   while (activate == 1)
   {
@@ -259,7 +278,7 @@ void triggerAlarm()
       activate = 0;
       lcd.clear();
       // Enter deep sleep for the specified interval
-      //goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microsecond
+      // goToSleep(INTERVAL_SECONDS * 1000000); // Convert seconds to microsecond
     }
   }
 
